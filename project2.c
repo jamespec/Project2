@@ -7,23 +7,31 @@ int findLine(char s[], int lim);
 int main() {
     char line[300];
 
-    // 1550225480 - 
-    // 1 * 10 
-    char test_line[] = "   1-550-225  48-0QQQQ  ";
-    char output[100];
-    int nextChar = 0;
+    char isbn[12];
+    char title[200];
 
     int count = findLine(line, 300);
     while( count > 0 ) {
-        int result = getISBM( test_line, nextChar, output );
-        if( result < 0 )
-            printf("Error is ISBM\n");
-        else
-        {
-            printf("ISBM: %s\n", output);
+        printf("input: %s", line);
+
+        int nextChar = getISBN( line, 0, isbn );
+        if( nextChar > 0 ) {
+            nextChar = getTitle( line, nextChar, title );
+            if( nextChar > 0 ) {
+                printf("ISBM: %s  Title: %s\n", isbn, title );
+            }
+            else {
+                printf("Error in title\n");
+            }
+        }
+        else {
+            printf("Error in ISBM\n");
         }
 
+        printf("\n");
+
         count = findLine(line, 300);
+        nextChar=0;
     }
 }
 

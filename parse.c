@@ -15,7 +15,7 @@
  * The last digit is a check digit
  */
 
-int getISBM( char input[], int nextChar, char output[] ) 
+int getISBN( char input[], int nextChar, char output[] ) 
 {
     if( strlen(input) == 0 )
         return -1;
@@ -37,7 +37,7 @@ int getISBM( char input[], int nextChar, char output[] )
     // substract '0' to convert from char digit to number.
     int s=0;
     for(int i=0; i<9; i++) {
-        s += (10-i) * (output[i] - '0');
+        s += ((10-i) * (output[i] - '0'));
     }
 
     // calculate the expected check
@@ -52,5 +52,32 @@ int getISBM( char input[], int nextChar, char output[] )
     else if( check == 10 && output[9] != 'X')
         return -1;
     
+    return nextChar;
+}
+
+int getTitle( char input[], int nextChar, char output[] ) 
+{
+    if( strlen(input) == 0 )
+        return -1;
+
+    int numQuotes=0;
+    int nextOutChar=0;
+    while( numQuotes < 2 && input[nextChar] != '\0' ) 
+    {
+        if( input[nextChar] == '\"' ) {
+            numQuotes++;
+        }
+        else if( numQuotes == 0 && input[nextChar] != ' ' ) {
+            // If we haven't found the first quote only spaces are allowed.
+            return -1; 
+        }
+        else if( numQuotes == 1 ) {
+            output[nextOutChar++] = input[nextChar];
+        }
+        nextChar++;
+    }
+    // null terminate the output string.
+    output[nextOutChar] = '\0';
+
     return nextChar;
 }
