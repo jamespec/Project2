@@ -4,12 +4,24 @@
 
 #include "parse.h"
 #include "book_list.h"
+#include "bad_line_list.h"
 
 int findLine(char s[], int lim);
-int iswhitespace( char s[] );
+int isAllWhitespace( char s[] );
 
-int main() {
+int main( int argc, char *argv[] ) {
+    int showRejectedLined=0;
+    int sortByAuthor=0;
+
+    for( int i=1; i<argc; i++ ) {
+        if( strcmp(argv[i], "-r") == 0 )
+            showRejectedLined=1;
+        else if( strcmp(argv[i], "-a") == 0 )
+            sortByAuthor=1;
+    }
+
     struct book *list_head=0;
+    struct bad_line *bad_line_list_head=0;
 
     char line[300];
 
@@ -27,8 +39,10 @@ int main() {
     while( count > 0 ) { 
         inputLines++;
 
-        if( iswhitespace(line) == 0 )
+        if( isAllWhitespace(line) ) {
+            count = findLine(line, 300);
             continue;
+        }
 
         int nextChar = getISBN( line, 0, isbn );
         if( nextChar > 0 ) {
@@ -42,41 +56,52 @@ int main() {
 
                         struct book *found = findBookByISBN( list_head, isbn );
                         if( found ) {
-                            if( compareBooks( found, &book ) == 0 ) {
+                            if( compareBooks( found, &book, sortByAuthor ) == 0 ) {
                                 found->count++;
                                 accepted++;
                             }
                             else
                             {
+                                bad_line_list_head = addBadLine(bad_line_list_head, line );
                                 rejected++;
                             }
                         }
                         else {
                             // not found, add new
-                            list_head = add( list_head, &book );
+                            list_head = add( list_head, &book, sortByAuthor );
                             accepted++;
                         }
                     }
-                    else
+                    else {
+                        bad_line_list_head = addBadLine(bad_line_list_head, line );
                         rejected++;
+                    }
                 }
-                else
+                else {
+                    bad_line_list_head = addBadLine(bad_line_list_head, line );
                     rejected++;
+                }
             }
-            else
+            else {
+                bad_line_list_head = addBadLine(bad_line_list_head, line );
                 rejected++;
+            }
         }
-        else
+        else {
+            bad_line_list_head = addBadLine(bad_line_list_head, line );
             rejected++;
+        }
 
         count = findLine(line, 300);
-        nextChar=0;
     }
 
     printf("%d lines of input wew processed.\n\n", inputLines);
-    printBookTitles(list_head);
+    printBookList(list_head);
     printf("\n%d lines of input were accepted.\n", accepted );
     printf("%d lines of input were rejected.\n", rejected );
+
+    if( showRejectedLined )
+        printBadLines(bad_line_list_head);
 }
 
 //Reference to Get Line Function from textbook
@@ -93,12 +118,10 @@ int findLine(char s[], int lim) {
     return i;
 }
 
-int iswhitespace( char s[] ) {
-    int count=0;
+int isAllWhitespace( char s[] ) {
+    int i=0;
+    while( s[i] && isspace(s[i]) )
+        i++;
 
-    for( int i=0; s[i]; i++ )
-        if( isspace(s[i]) )
-            count++;
-
-    return count;
+    return !s[i];
 }

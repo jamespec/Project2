@@ -98,6 +98,7 @@ int getLast( char input[], int nextChar, char output[] )
     int nextOutChar=0;
     while( input[nextChar] != ',' && input[nextChar] != '\0' ) 
     {
+        // TODO: fix handing of spaces.
         if( input[nextChar] != ' ' )
             output[nextOutChar++] = input[nextChar];
 

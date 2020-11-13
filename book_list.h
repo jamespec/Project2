@@ -9,8 +9,8 @@ struct book {
 };
 
 void fillBook( struct book *book, char isbn[], char title[], char last[], char first[] );
-struct book *add(struct book *head, struct book *newBook );
+struct book *add(struct book *head, struct book *newBook, int sortByAuthor );
 void printBookList(struct book *head );
 struct book *findBookByISBN( struct book *head, char isbn[] );
-int compareBooks( struct book *book1, struct book *book2 );
-void printBookTitles(struct book *head);
+
+int compareBooks( struct book *book1, struct book *book2, int byAuthor );

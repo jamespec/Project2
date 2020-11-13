@@ -4,7 +4,6 @@
 
 #include "book_list.h"
 
-
 void fillBook( struct book *book, char isbn[], char title[], char last[], char first[] )
 {
     strcpy( book->isbn, isbn );
@@ -15,31 +14,37 @@ void fillBook( struct book *book, char isbn[], char title[], char last[], char f
     book->next = 0;
 }
 
-// Adds a new book to a linked list and returns the new head
-struct book *add(struct book *head, struct book *newBook ) 
+// Adds a new book to the list at the location that that makes the list ordered by title.
+struct book *add(struct book *head, struct book *newBook, int byAuthor ) 
 {
     struct book *temp = (struct book *)malloc(sizeof(struct book));
     *temp = *newBook;
     temp->count = 1;
-    temp->next = head;
 
-    return temp;
-}
-
-void printBookList(struct book *head)
-{
-    while( head ) {
-        printf("ISBN: %s  Title: %-60.60s  Last: %s  First: %s  Count: %d\n", 
-            head->isbn, head->title, head->last, head->first, head->count );
-
-        head = head->next;
+    if( !head || compareBooks(temp, head, byAuthor) < 0 ) {
+        temp->next = head;
+        return temp;
     }
+
+    struct book *current = head;
+    while( current->next && compareBooks(current->next, temp, byAuthor) < 0 )
+        current = current->next;
+
+    temp->next = current->next;
+    current->next = temp;
+
+    return head;
 }
 
-void printBookTitles(struct book *head)
+void printBookList(struct book *head )
 {
     while( head ) {
-        printf("%s: %d\n", head->title, head->count );
+        printf("%s (%s): %d\n", head->title, head->last, head->count );
+
+// Usefull for debugging, prints all fields.      
+//        printf("ISBN: %s  Title: %-60.60s  Last: %s  First: %s  Count: %d\n", 
+//            head->isbn, head->title, head->last, head->first, head->count );
+
         head = head->next;
     }
 }
@@ -56,23 +61,52 @@ struct book *findBookByISBN( struct book *head, char isbn[] )
     return head;
 }
 
-// returns
-//  0, if book1 equals book2
-//  1, if book1 has a different isbn as book2
-// -1, if the isbn is the same both info is different, a bad row
-int compareBooks( struct book *book1, struct book *book2 )
+// Compares books
+// if byAuthor is false:
+//   by title then last, first and finally isbn
+//  -1, if book1 sorts before book2
+//   0, if book1 is entirely equal to book2
+//   1, if book1 sorts after book2
+// if byAuthor is true:
+//   by last, first, title and finally isbn
+//  -1, if book1 sorts before book2
+//   0, if book1 is entirely equal to book2
+//   1, if book1 sorts after book2
+
+int compareBooks( struct book *book1, struct book *book2, int byAuthor )
 {
-    if( strcmp(book1->isbn, book2->isbn) != 0 )
-        return 1;
+    int c;
 
-    if( strcmp(book1->title, book2->title) != 0 )
-        return -1;
+    if( byAuthor ) {
+        int c = strcmp(book1->last, book2->last);
+        if( c != 0 )
+            return c;
 
-    if( strcmp(book1->last, book2->last) != 0 )
-        return -1;
+        // Last name is the same, look at first name
+        c = strcmp(book1->first, book2->first);
+        if( c != 0 )
+            return c;
 
-    if( strcmp(book1->first, book2->first) != 0 )
-        return -1;
+        // first name is the same, look at title
+        c = strcmp(book1->title, book2->title);
+        if( c != 0 )
+            return c;
 
-    return 0;
+        return strcmp(book1->title, book2->title);
+    }
+    else {
+        c = strcmp(book1->title, book2->title);
+        if( c != 0 )
+            return c;
+
+        c = strcmp(book1->last, book2->last);
+        if( c != 0 )
+            return c;
+
+        c = strcmp(book1->first, book2->first);
+        if( c != 0 )
+            return c;
+
+        return strcmp(book1->isbn, book2->isbn);
+    }
 }
