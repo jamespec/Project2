@@ -79,5 +79,61 @@ int getTitle( char input[], int nextChar, char output[] )
     // null terminate the output string.
     output[nextOutChar] = '\0';
 
+    if( numQuotes != 2 ) {
+        // The input ended before we found the second quote, error!
+        return -1;
+    }
+
+    return nextChar;
+}
+
+// reads the last name, anything up to and including the comma is consumed.
+// the nextChar index is returned, in this case the index to the char after the comma.
+// If a comma is not found before the end of the input a -1 is returned.
+int getLast( char input[], int nextChar, char output[] )
+{
+    if( strlen(input) == 0 )
+        return -1;
+
+    int nextOutChar=0;
+    while( input[nextChar] != ',' && input[nextChar] != '\0' ) 
+    {
+        if( input[nextChar] != ' ' )
+            output[nextOutChar++] = input[nextChar];
+
+        nextChar++;
+    }
+    // null terminate the output string.
+    output[nextOutChar] = '\0';
+
+    if( input[nextChar] != ',' )
+        return -1;
+
+    // consume the ','
+    nextChar++;
+
+    return nextChar;
+}
+
+
+// reads the first name, anything up to the end of the input is consumed.
+// the nextChar index is returned, in this case the index of the '\0' at the end.
+// The only error occurs when an empty input is passed in, returning -1
+int getFirst( char input[], int nextChar, char output[] )
+{
+    if( strlen(input) == 0 )
+        return -1;
+
+    int nextOutChar=0;
+    while( input[nextChar] != '\0' )
+    {
+        if( input[nextChar] != ' ' )
+            output[nextOutChar++] = input[nextChar];
+            
+        nextChar++;
+    }
+    // null terminate the output string.
+    output[nextOutChar] = '\0';
+
     return nextChar;
 }
